@@ -9,27 +9,37 @@ const cards = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-[#111418] text-white">
+    <main className="min-h-screen overflow-hidden bg-[#1a1d20] text-white">
       <section className="mx-auto flex h-210 w-full max-w-5xl flex-col overflow-hidden px-4 py-4 sm:px-6 lg:px-8">
         {/* Navbar */}
-        <header className="flex items-center gap-3">
-          <div className="h-12 w-12 bg-white" aria-hidden="true" />
-          <span className="text-sm font-medium tracking-wide">
-            Reel Reads Club
-          </span>
+        <header className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <img
+              src="/reelreads.svg"
+              alt=""
+              aria-hidden="true"
+              className="h-16 w-16"
+            />
+            <span className="font-['Literata',_serif] text-2xl font-extrabold tracking-wide relative bottom-1">
+              <span className="text-[#EFA950]">reel</span>reads
+            </span>
+          </div>
+          <p className="uppercase font-bold text-sm text-[#778899]">
+            a book club in irvine
+          </p>
         </header>
 
         {/* Hero */}
         <div className="flex flex-1 flex-col items-center justify-end px-0 text-center sm:pt-18 lg:pt-20 pb-12">
           <div className="max-w-3xl">
-            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-              Reel Reads Club
+            <h1 className="font-['Literata',_serif] text-5xl font-extrabold tracking-tight">
+              <span className="text-[#EFA950]">reel</span>reads
             </h1>
-            <p className="mt-4 text-base text-white/70">
+            <p className="mt-3 text-base text-[#778899]">
               Read the book. Watch the movie. Talk about it.
             </p>
 
-            <form className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
+            <form className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
               <label htmlFor="email" className="sr-only">
                 Email address
               </label>
@@ -37,21 +47,17 @@ export default function Home() {
                 id="email"
                 name="email"
                 type="email"
-                placeholder="Enter your email"
-                className="h-12 w-full rounded-none border border-white/15 bg-[#111418] px-4 text-sm text-white placeholder:text-white/45 focus:outline-none"
+                placeholder="enter your email"
+                className="h-12 w-full rounded-l-md border border-white/15 bg-[#111418] px-4 text-sm text-white placeholder:text-white/45 focus:outline-none"
                 required
               />
               <button
                 type="submit"
-                className="h-12 rounded-none bg-white px-5 text-sm font-medium text-[#111418]"
+                className="h-12 rounded-r-md bg-[#EFA950] uppercase font-extrabold px-5 text-xs text-[#1a1d20] cursor-pointer hover:opacity-80 border-[#1a1d20] border-2"
               >
-                Join
+                join
               </button>
             </form>
-
-            <p className="mt-4 text-sm text-white/55">
-              Monthly meetups in Irvine for people in their 20s-30s
-            </p>
           </div>
         </div>
 
