@@ -10,11 +10,8 @@
 :root {
   --literata: "Literata", serif;
   --dark: #1a1d20;
-  --ink: #f5f7fa;
+  --ink: #778899;
   --primary: #efa950;
-}
-
-@theme {
 }
 
 html {

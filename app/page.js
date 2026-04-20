@@ -45,10 +45,15 @@ const cards = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-dark text-ink">
+    <main className="min-h-screen overflow-hidden bg-dark text-white">
       <section className="mx-auto flex h-210 w-full max-w-5xl flex-col overflow-hidden px-4 py-4 sm:px-6 lg:px-8">
         <header className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
+          <a
+            href="https://www.goodreads.com/user/show/200353032-ace"
+            target="_blank"
+            rel="noreferrer"
+            className="flex cursor-pointer items-center gap-4"
+          >
             <img
               src="/reelreads.svg"
               alt=""
@@ -58,10 +63,15 @@ export default function Home() {
             <span className="font-literata relative bottom-1 text-xl font-extrabold tracking-wide">
               <span className="text-primary">reel</span>reads
             </span>
-          </div>
-          <p className="uppercase font-bold text-sm text-[#778899]">
-            a book club in irvine
-          </p>
+          </a>
+          <a
+            href="https://www.google.com/maps/place/Irvine,+CA"
+            target="_blank"
+            rel="noreferrer"
+            className="group uppercase text-sm font-bold text-ink"
+          >
+            a book club in <span className="transition-colors duration-150 group-hover:text-primary group-hover:underline">irvine</span>
+          </a>
         </header>
 
         <div className="flex flex-1 flex-col items-center justify-end pb-12 text-center sm:pt-18 lg:pt-20">
@@ -69,7 +79,7 @@ export default function Home() {
             <h1 className="font-literata text-5xl font-extrabold tracking-tight">
               <span className="text-primary">reel</span>reads
             </h1>
-            <p className="mt-3 text-base text-[#778899]">
+            <p className="mt-3 text-base text-ink">
               Read the book. Watch the movie. Talk about it.
             </p>
 
@@ -82,7 +92,7 @@ export default function Home() {
                 name="email"
                 type="email"
                 placeholder="enter your email"
-                className="h-12 w-full rounded-l-md border border-white/15 bg-dark px-4 text-sm text-ink placeholder:text-ink/45 focus:outline-none"
+                className="h-12 w-full rounded-l-md bg-white/5 border border-white/15 px-4 text-sm placeholder:text-white/45 focus:outline-none"
                 required
               />
               <button
@@ -116,7 +126,7 @@ export default function Home() {
                       alt={`${card.title} book cover`}
                       className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-150 group-hover:opacity-100"
                     />
-                    <div className="pointer-events-none absolute inset-0 rounded-md border border-[#778899]/70 transition-[border-width,border-color] duration-300 group-hover:border-3 group-hover:border-primary" />
+                    <div className="pointer-events-none absolute inset-0 rounded-md border border-ink/70 transition-[border-width,border-color] duration-300 group-hover:border-3 group-hover:border-primary" />
                   </div>
                 </a>
               </li>
