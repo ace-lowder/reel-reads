@@ -1,10 +1,46 @@
 const cards = [
-  { title: "Card 1", poster: "Poster 1", book: "Book 1" },
-  { title: "Card 2", poster: "Poster 2", book: "Book 2" },
-  { title: "Card 3", poster: "Poster 3", book: "Book 3" },
-  { title: "Card 4", poster: "Poster 4", book: "Book 4" },
-  { title: "Card 5", poster: "Poster 5", book: "Book 5" },
-  { title: "Card 6", poster: "Poster 6", book: "Book 6" },
+  {
+    title: "Wuthering Heights",
+    poster:
+      "https://m.media-amazon.com/images/M/MV5BMGFlMTVkMDktZGMzMC00Yjk4LWFmNzEtNTFmMzM2YzM3MWFkXkEyXkFqcGc@._V1_FMjpg_UX1086_.jpg",
+    book: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1478641029i/32929156.jpg",
+    href: "https://www.goodreads.com/book/show/32929156-wuthering-heights",
+  },
+  {
+    title: "Project Hail Mary",
+    poster:
+      "https://m.media-amazon.com/images/M/MV5BNTkwNzJiYTctNzI3NC00NjE1LTlhYjktY2Q5MTdmMWFmNzcxXkEyXkFqcGc@._V1_FMjpg_UY4096_.jpg",
+    book: "https://m.media-amazon.com/images/I/51-1T3EnODL._SY445_SX342_FMwebp_.jpg",
+    href: "https://www.goodreads.com/book/show/54493401-project-hail-mary",
+  },
+  {
+    title: "Devil Wears Prada 2",
+    poster:
+      "https://m.media-amazon.com/images/M/MV5BZmM3ZDU3ODItZmY5Yi00OTQ2LWE5OTctZTA5NDBhMWJkOGY3XkEyXkFqcGc@._V1_FMjpg_UX1086_.jpg",
+    book: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1440180884i/16130307.jpg",
+    href: "https://www.goodreads.com/en/book/show/16130307-revenge-wears-prada",
+  },
+  {
+    title: "Three Bags Full",
+    poster:
+      "https://m.media-amazon.com/images/M/MV5BZmI3NTc2N2MtOWMzMi00ZWQ4LTlhODQtZGVmMGNmN2IzNDZlXkEyXkFqcGc@._V1_FMjpg_UX1086_.jpg",
+    book: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1320392670i/779463.jpg",
+    href: "https://www.goodreads.com/book/show/779463.Three_Bags_Full",
+  },
+  {
+    title: "The Odyssey",
+    poster:
+      "https://m.media-amazon.com/images/M/MV5BN2MyYjk2MWMtODMyZS00MDUyLWE0OGQtOTQ3MGY0MDE0ZjVmXkEyXkFqcGc@._V1_FMjpg_UX1086_.jpg",
+    book: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1711957706i/1381.jpg",
+    href: "https://www.goodreads.com/book/show/1381.The_Odyssey",
+  },
+  {
+    title: "Sunrise on the Reaping",
+    poster:
+      "https://m.media-amazon.com/images/M/MV5BNGRkYmM2MjUtZTY4Yi00YTNhLTk1MDEtYTQ3YjFiOTljM2Y1XkEyXkFqcGc@._V1_FMjpg_UX1086_.jpg",
+    book: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1729085500i/214331246.jpg",
+    href: "http://goodreads.com/book/show/214331246-sunrise-on-the-reaping",
+  },
 ];
 
 export default function Home() {
@@ -17,9 +53,9 @@ export default function Home() {
               src="/reelreads.svg"
               alt=""
               aria-hidden="true"
-              className="h-16 w-16"
+              className="h-14 w-14"
             />
-            <span className="font-literata relative bottom-1 text-2xl font-extrabold tracking-wide">
+            <span className="font-literata relative bottom-1 text-xl font-extrabold tracking-wide">
               <span className="text-primary">reel</span>reads
             </span>
           </div>
@@ -62,15 +98,27 @@ export default function Home() {
         <section className="relative left-1/2 w-screen -translate-x-1/2 pb-6 pt-10 sm:pt-12 lg:left-auto lg:w-full lg:translate-x-0">
           <ul className="flex w-full flex-nowrap gap-2 overflow-hidden lg:justify-between">
             {cards.map((card) => (
-              <li key={card.title} className="w-35 shrink-0">
-                <article className="group relative w-full overflow-hidden border border-white/12 bg-[#161b20]">
-                  <div className="aspect-2/3 w-full bg-zinc-700 p-2 text-[10px] font-medium text-white/85 transition-opacity duration-150 group-hover:opacity-0">
-                    <div className="flex h-full items-end">{card.poster}</div>
+              <li key={card.title} className="w-37 shrink-0">
+                <a
+                  href={card.href ?? "#"}
+                  target={card.href ? "_blank" : undefined}
+                  rel={card.href ? "noreferrer" : undefined}
+                  className="group block w-full"
+                >
+                  <div className="relative aspect-2/3 w-full overflow-hidden rounded-md bg-[#161b20]">
+                    <img
+                      src={card.poster}
+                      alt={card.title}
+                      className="absolute inset-0 h-full w-full object-cover transition-opacity duration-150 group-hover:opacity-0"
+                    />
+                    <img
+                      src={card.book}
+                      alt={`${card.title} book cover`}
+                      className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+                    />
+                    <div className="pointer-events-none absolute inset-0 rounded-md border border-[#778899]/70 transition-[border-width,border-color] duration-300 group-hover:border-3 group-hover:border-primary" />
                   </div>
-                  <div className="absolute inset-0 flex aspect-2/3 w-full items-end bg-emerald-900 p-2 text-[10px] font-medium text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
-                    <div>{card.book}</div>
-                  </div>
-                </article>
+                </a>
               </li>
             ))}
           </ul>
