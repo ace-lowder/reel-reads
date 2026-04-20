@@ -1,4 +1,74 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 export default function Home() {
+  const [heroLoaded, setHeroLoaded] = useState(false);
+  const [cardsLoaded, setCardsLoaded] = useState(false);
+  const [revealedCount, setRevealedCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const heroImage = new Image();
+    heroImage.onload = () => {
+      if (!cancelled) {
+        setHeroLoaded(true);
+      }
+    };
+    heroImage.src =
+      "https://a.ltrbxd.com/resized/sm/upload/6o/d7/gp/q6/5qzLJcwua0ETNYgGRIXu40i4lKK-1200-1200-675-675-crop-000000.jpg";
+
+    const sources = cards.flatMap((card) => [card.poster, card.book]);
+    let loaded = 0;
+
+    const images = sources.map((src) => {
+      const image = new Image();
+      image.onload = () => {
+        loaded += 1;
+        if (!cancelled && loaded === sources.length) {
+          setCardsLoaded(true);
+        }
+      };
+      image.src = src;
+      return image;
+    });
+
+    return () => {
+      cancelled = true;
+      images.forEach((image) => {
+        image.onload = null;
+      });
+      heroImage.onload = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!cardsLoaded) {
+      setRevealedCount(0);
+      return;
+    }
+
+    let timerId;
+    let index = 0;
+
+    const revealNext = () => {
+      index += 1;
+      setRevealedCount(index);
+      if (index < cards.length) {
+        timerId = window.setTimeout(revealNext, index === 1 ? 60 : 120);
+      }
+    };
+
+    timerId = window.setTimeout(revealNext, 0);
+
+    return () => {
+      if (timerId) {
+        window.clearTimeout(timerId);
+      }
+    };
+  }, [cardsLoaded]);
+
   return (
     <main className="min-h-screen overflow-hidden bg-dark text-white">
       <div className="mx-auto flex flex-col justify-center h-full w-full max-w-5xl">
@@ -7,11 +77,18 @@ export default function Home() {
           <div className="absolute w-32 h-full bg-[linear-gradient(-90deg,#1a1d2000_0%,#1a1d20CC_70%,#1a1d20FF_100%)] z-10" />
           <div className="absolute right-0 w-32 translate-x-px h-full bg-[linear-gradient(90deg,#1a1d2000_0%,#1a1d20CC_50%,#1a1d20FF_100%)] z-10" />
           <div className="absolute bottom-0 w-full h-32 bg-[linear-gradient(180deg,#1a1d2000_0%,#1a1d20CC_60%,#1a1d20FF_100%)] z-10" />
+          <p className="absolute right-2 top-3/5 -rotate-90 z-10 text-ink/50">
+            Project Hail Mary
+          </p>
           <img
             src="https://cloudfront-us-east-1.images.arcpublishing.com/gray/AKAMLJABWRAB5EDEFJ55WMWMIA.jpg"
             alt=""
             aria-hidden="true"
-            className="w-full h-full object-cover object-top"
+            loading="eager"
+            onLoad={() => setHeroLoaded(true)}
+            className={`w-full h-full object-cover object-top transition-opacity duration-700 ${
+              heroLoaded ? "opacity-100" : "opacity-0"
+            }`}
           />
         </div>
         {/* <div className="relative h-full left-1/2 -translate-x-1/2 top-0 w-[130vw] max-w-[1500px] bg-red-200" /> */}
@@ -48,7 +125,7 @@ export default function Home() {
           </a>
         </header>
 
-        <div className="flex flex-col items-center justify-end mt-75 mb-16 text-center z-10">
+        <div className="flex flex-col items-center justify-end mt-[300px] mb-16 text-center z-10">
           <div className="max-w-3xl">
             <h1 className="font-literata text-5xl font-extrabold tracking-tight">
               <span className="text-primary">reel</span>reads
@@ -80,30 +157,40 @@ export default function Home() {
         </div>
 
         <ul className="flex mx-auto px-4 w-fit max-w-screen flex-nowrap gap-3 overflow-x-scroll">
-          {cards.map((card) => (
-            <li key={card.title} className="w-37 shrink-0">
-              <a
-                href={card.href ?? "#"}
-                target={card.href ? "_blank" : undefined}
-                rel={card.href ? "noreferrer" : undefined}
-                className="group block w-full"
+          {cardsLoaded &&
+            cards.map((card, index) => (
+              <li
+                key={card.title}
+                className={`w-37 shrink-0 transition-all duration-500 ${
+                  revealedCount > index
+                    ? "translate-x-0 opacity-100"
+                    : "translate-x-4 opacity-0"
+                }`}
               >
-                <div className="relative aspect-2/3 rounded-md">
-                  <img
-                    src={card.poster}
-                    alt={card.title}
-                    className="absolute inset-0 h-full w-full object-cover transition-opacity duration-150 group-hover:opacity-0 rounded-md"
-                  />
-                  <img
-                    src={card.book}
-                    alt={`${card.title} book cover`}
-                    className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-150 group-hover:opacity-100 rounded-md"
-                  />
-                  <div className="pointer-events-none absolute inset-0 rounded-md border border-ink/70 transition-all group-hover:border-3 group-hover:border-primary" />
-                </div>
-              </a>
-            </li>
-          ))}
+                <a
+                  href={card.href ?? "#"}
+                  target={card.href ? "_blank" : undefined}
+                  rel={card.href ? "noreferrer" : undefined}
+                  className="group block w-full"
+                >
+                  <div className="relative aspect-2/3 rounded-md">
+                    <img
+                      src={card.poster}
+                      alt={card.title}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover transition-opacity duration-150 group-hover:opacity-0 rounded-md"
+                    />
+                    <img
+                      src={card.book}
+                      alt={`${card.title} book cover`}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-150 group-hover:opacity-100 rounded-md"
+                    />
+                    <div className="pointer-events-none absolute inset-0 rounded-md border border-ink/70 transition-all group-hover:border-3 group-hover:border-primary" />
+                  </div>
+                </a>
+              </li>
+            ))}
         </ul>
       </div>
     </main>

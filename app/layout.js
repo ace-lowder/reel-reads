@@ -1,4 +1,11 @@
+import { Literata } from "next/font/google";
 import "./globals.css";
+
+const literata = Literata({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--literata",
+});
 
 export const metadata = {
   title: "Reel Reads Club",
@@ -10,15 +17,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en" suppressHydrationWarning className={literata.variable}>
       <body className="bg-dark text-ink antialiased">{children}</body>
     </html>
   );
