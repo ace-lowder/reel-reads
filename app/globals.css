@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+@theme inline {
+  --font-literata: var(--literata);
+  --color-dark: var(--dark);
+  --color-ink: var(--ink);
+  --color-primary: var(--primary);
+}
+
+:root {
+  --literata: "Literata", serif;
+  --dark: #1a1d20;
+  --ink: #f5f7fa;
+  --primary: #efa950;
+}
+
+@theme {
+}
+
 html {
   height: 100%;
 }
