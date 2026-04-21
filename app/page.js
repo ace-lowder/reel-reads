@@ -61,7 +61,7 @@ export default function Home() {
     const timers = cards.map((_, index) =>
       window.setTimeout(() => {
         setRevealedCount(index + 1);
-      }, index * staggerMs)
+      }, index * staggerMs),
     );
 
     return () => {
@@ -116,23 +116,28 @@ export default function Home() {
   }
 
   const buttonDisabled = submitting || submitStatus !== "idle";
-  const buttonContent =
-    submitting ? (
-      <span
-        aria-hidden="true"
-        className="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-      />
-    ) : submitStatus === "success" ? (
-      <span aria-hidden="true" className="inline-flex justify-center text-lg leading-none">
-        ✓
-      </span>
-    ) : submitStatus === "error" ? (
-      <span aria-hidden="true" className="inline-flex justify-center text-lg leading-none">
-        ×
-      </span>
-    ) : (
-      "join"
-    );
+  const buttonContent = submitting ? (
+    <span
+      aria-hidden="true"
+      className="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+    />
+  ) : submitStatus === "success" ? (
+    <span
+      aria-hidden="true"
+      className="inline-flex justify-center relative -left-px leading-none"
+    >
+      ✓
+    </span>
+  ) : submitStatus === "error" ? (
+    <span
+      aria-hidden="true"
+      className="inline-flex justify-center text-lg relative -left-px leading-none"
+    >
+      ×
+    </span>
+  ) : (
+    "join"
+  );
   const buttonStyles =
     submitStatus === "success"
       ? "bg-emerald-500 hover:opacity-90"
@@ -201,7 +206,7 @@ export default function Home() {
           </a>
         </header>
 
-        <div className="flex flex-col items-center justify-end mt-[300px] mb-16 text-center z-10">
+        <div className="flex flex-col items-center justify-end mt-75 mb-16 text-center z-10">
           <div className="max-w-3xl">
             <h1 className="font-literata text-5xl font-extrabold tracking-tight">
               <span className="text-primary">reel</span>reads
@@ -240,7 +245,7 @@ export default function Home() {
                 aria-hidden="true"
                 tabIndex={-1}
                 autoComplete="off"
-                className="absolute left-[-9999px] h-px w-px opacity-0"
+                className="absolute left-2500 h-px w-px opacity-0"
                 name="website"
                 type="text"
                 value={website}
@@ -249,7 +254,7 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={buttonDisabled}
-                className={`h-full w-28 shrink-0 rounded-r-md px-4 text-xs font-extrabold uppercase cursor-pointer transition-all disabled:cursor-not-allowed disabled:opacity-70 ${buttonStyles}`}
+                className={`h-full w-16 shrink-0 rounded-r-md px-4 text-xs font-extrabold uppercase cursor-pointer transition-all disabled:cursor-not-allowed disabled:opacity-70 ${buttonStyles}`}
               >
                 <span className="flex w-full items-center justify-center">
                   {buttonContent}
@@ -257,7 +262,11 @@ export default function Home() {
               </button>
             </form>
             {buttonText ? (
-              <p className="mt-3 text-sm min-h-5 text-primary" role="status" aria-live="polite">
+              <p
+                className="mt-3 text-sm min-h-5 text-primary"
+                role="status"
+                aria-live="polite"
+              >
                 {buttonText}
               </p>
             ) : null}
@@ -303,7 +312,9 @@ export default function Home() {
       </div>
       <div
         className={`fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4 transition-all duration-200 ${
-          isModalOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          isModalOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setIsModalOpen(false)}
         aria-hidden={!isModalOpen}
@@ -312,21 +323,31 @@ export default function Home() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="signup-error-title"
-          className={`relative w-full max-w-sm rounded-xl border border-white/10 bg-dark p-5 text-white shadow-2xl transition-all duration-200 ${
+          className={`text-center relative w-full max-w-sm rounded-xl border border-white/10 bg-dark p-5 text-white shadow-2xl transition-all duration-200 ${
             isModalOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-2"
           }`}
           onClick={(event) => event.stopPropagation()}
         >
-          <h2 id="signup-error-title" className="font-literata text-xl font-extrabold text-white">
-            something went wrong
+          <h2
+            id="signup-error-title"
+            className="font-literata text-xl font-extrabold text-white"
+          >
+            Something went wrong
           </h2>
           <p className="mt-3 text-sm leading-6 text-ink">
-            Please email hello@reelreads.club if the sign up keeps failing.
+            An unexpected error has occurred. Please try again. Email me at{" "}
+            <a
+              href="mailto:hello@reelreads.com"
+              className="text-blue-400! hover:underline!"
+            >
+              hello@reelreads.club
+            </a>{" "}
+            if you see this again.
           </p>
           <button
             type="button"
             onClick={() => setIsModalOpen(false)}
-            className="mt-6 w-full rounded-md bg-primary px-4 py-3 text-sm font-extrabold uppercase text-dark transition-all hover:bg-primary/90 hover:shadow-md"
+            className="mt-6 w-full rounded-md bg-primary px-4 py-3 text-sm font-extrabold uppercase text-dark transition-all hover:bg-primary/70 hover:cursor-pointer"
           >
             Okay
           </button>
