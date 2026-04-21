@@ -40,33 +40,36 @@ export async function POST(request) {
     return jsonResponse({ error: "invalid_email" }, 400);
   }
 
-  const response = await fetch("https://connect.mailerlite.com/api/subscribers", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      email,
-      groups: [groupId],
-    }),
-  });
+  try {
+    const response = await fetch("https://connect.mailerlite.com/api/subscribers", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        groups: [groupId],
+      }),
+    });
 
-  if (response.ok) {
-    return jsonResponse({ ok: true });
+    if (response.ok) {
+      return jsonResponse({ ok: true });
+    }
+
+    const errorText = await response.text().catch(() => "");
+
+    if (isDuplicateSubscriber(errorText) || response.status === 409) {
+      return jsonResponse({ ok: true });
+    }
+
+    return jsonResponse({ error: "subscribe_failed" }, 500);
+  } catch {
+    return jsonResponse({ error: "subscribe_failed" }, 500);
   }
-
-  const errorText = await response.text().catch(() => "");
-
-  if (isDuplicateSubscriber(errorText) || response.status === 409) {
-    return jsonResponse({ ok: true });
-  }
-
-  return jsonResponse({ error: "subscribe_failed" }, 500);
 }
 
 export function GET() {
   return jsonResponse({ error: "method_not_allowed" }, 405);
 }
-

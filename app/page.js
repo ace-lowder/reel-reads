@@ -10,8 +10,11 @@ export default function Home() {
   const [revealedCount, setRevealedCount] = useState(0);
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
-  const [status, setStatus] = useState("idle");
+  const [submitStatus, setSubmitStatus] = useState("idle");
+  const [submitting, setSubmitting] = useState(false);
+  const [resultLocked, setResultLocked] = useState(false);
   const [message, setMessage] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -81,13 +84,14 @@ export default function Home() {
     const trimmedEmail = email.trim();
 
     if (!emailRegex.test(trimmedEmail)) {
-      setStatus("error");
+      setSubmitStatus("error");
       setMessage("something went wrong. try again.");
       return;
     }
 
-    setStatus("loading");
+    setSubmitting(true);
     setMessage("");
+    setIsModalOpen(false);
 
     try {
       const response = await fetch("/api/subscribe", {
@@ -107,20 +111,43 @@ export default function Home() {
         throw new Error(data?.error || "request_failed");
       }
 
-      setStatus("success");
+      setSubmitStatus("success");
+      setResultLocked(false);
       setMessage("check your email for the welcome note");
       setEmail("");
       setWebsite("");
     } catch {
-      setStatus("error");
+      setSubmitStatus("error");
+      setResultLocked(false);
       setMessage("something went wrong. try again.");
+      setIsModalOpen(true);
     } finally {
-      setStatus((current) => (current === "loading" ? "idle" : current));
+      setSubmitting(false);
     }
   }
 
+  const buttonDisabled = submitting || (submitStatus !== "idle" && !resultLocked);
+  const buttonLabel =
+    submitting ? (
+      <span
+        aria-hidden="true"
+        className="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-white/70 border-t-transparent"
+      />
+    ) : submitStatus === "success" ? (
+      "✓"
+    ) : submitStatus === "error" ? (
+      "×"
+    ) : (
+      "join"
+    );
+  const buttonStyles =
+    submitStatus === "success"
+      ? "bg-emerald-500 hover:opacity-90"
+      : submitStatus === "error"
+        ? "bg-red-500 hover:opacity-90"
+        : "bg-primary hover:opacity-80";
   return (
-    <main className="min-h-screen overflow-hidden bg-dark text-white">
+    <main className="min-h-screen overflow-hidden bg-dark text-white relative">
       <div className="mx-auto flex flex-col justify-center h-full w-full max-w-5xl">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-110 select-none">
           <div className="absolute top-0 w-full h-32 bg-[linear-gradient(0deg,#1a1d2000_0%,#1a1d20BB_50%,#1a1d20FF_100%)] z-10" />
@@ -199,7 +226,16 @@ export default function Home() {
                 className="h-full w-full rounded-l-md bg-white/5 border border-white/15 px-4 placeholder:text-white/45 focus:outline-none"
                 autoComplete="email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                disabled={submitting}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  if (submitStatus !== "idle") {
+                    setSubmitStatus("idle");
+                    setResultLocked(true);
+                    setMessage("");
+                    setIsModalOpen(false);
+                  }
+                }}
                 required
               />
               <input
@@ -214,15 +250,15 @@ export default function Home() {
               />
               <button
                 type="submit"
-                disabled={status === "loading"}
-                className="h-full rounded-r-md bg-primary px-5 text-xs font-extrabold uppercase cursor-pointer hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={buttonDisabled}
+                className={`h-full rounded-r-md px-5 text-xs font-extrabold uppercase cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 transition-all ${buttonStyles}`}
               >
-                {status === "loading" ? "joining" : "join"}
+                {buttonLabel}
               </button>
             </form>
             <p
               className={`mt-3 text-sm min-h-5 ${
-                status === "success" ? "text-primary" : "text-ink"
+                submitStatus === "success" ? "text-primary" : "text-ink"
               }`}
               role={message ? "status" : undefined}
               aria-live="polite"
@@ -268,6 +304,45 @@ export default function Home() {
               </li>
             ))}
         </ul>
+      </div>
+      <div
+        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4 transition-all duration-200 ${
+          isModalOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsModalOpen(false)}
+        aria-hidden={!isModalOpen}
+      >
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="signup-error-title"
+          className={`relative w-full max-w-md rounded-xl border border-white/10 bg-dark p-6 text-white shadow-2xl transition-all duration-200 ${
+            isModalOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-2"
+          }`}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            aria-label="Close dialog"
+            className="absolute right-3 top-3 rounded-full p-2 text-ink transition-colors hover:text-white"
+          >
+            ×
+          </button>
+          <h2 id="signup-error-title" className="font-literata text-2xl font-extrabold text-white">
+            something went wrong
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-ink">
+            Please email hello@reelreads.club if the sign up continues to fail
+          </p>
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            className="mt-6 w-full rounded-md bg-primary px-4 py-3 text-sm font-extrabold uppercase text-dark transition-opacity hover:opacity-90"
+          >
+            Okay
+          </button>
+        </div>
       </div>
     </main>
   );
