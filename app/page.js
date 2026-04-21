@@ -2,10 +2,16 @@
 
 import { useEffect, useState } from "react";
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function Home() {
   const [heroLoaded, setHeroLoaded] = useState(false);
   const [cardsLoaded, setCardsLoaded] = useState(false);
   const [revealedCount, setRevealedCount] = useState(0);
+  const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState("");
+  const [status, setStatus] = useState("idle");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -68,6 +74,50 @@ export default function Home() {
       }
     };
   }, [cardsLoaded]);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    const trimmedEmail = email.trim();
+
+    if (!emailRegex.test(trimmedEmail)) {
+      setStatus("error");
+      setMessage("something went wrong. try again.");
+      return;
+    }
+
+    setStatus("loading");
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: trimmedEmail,
+          website,
+        }),
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(data?.error || "request_failed");
+      }
+
+      setStatus("success");
+      setMessage("check your email for the welcome note");
+      setEmail("");
+      setWebsite("");
+    } catch {
+      setStatus("error");
+      setMessage("something went wrong. try again.");
+    } finally {
+      setStatus((current) => (current === "loading" ? "idle" : current));
+    }
+  }
 
   return (
     <main className="min-h-screen overflow-hidden bg-dark text-white">
@@ -134,7 +184,10 @@ export default function Home() {
               Read the book. Watch the movie. Talk about it.
             </p>
 
-            <form className="flex justify-center w-full mt-10 gap-3 h-12">
+            <form
+              className="flex justify-center w-full mt-10 gap-3 h-12"
+              onSubmit={handleSubmit}
+            >
               <label htmlFor="email" className="sr-only">
                 Email address
               </label>
@@ -144,15 +197,38 @@ export default function Home() {
                 type="email"
                 placeholder="enter your email"
                 className="h-full w-full rounded-l-md bg-white/5 border border-white/15 px-4 placeholder:text-white/45 focus:outline-none"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
                 required
+              />
+              <input
+                aria-hidden="true"
+                tabIndex={-1}
+                autoComplete="off"
+                className="absolute left-[-9999px] h-px w-px opacity-0"
+                name="website"
+                type="text"
+                value={website}
+                onChange={(event) => setWebsite(event.target.value)}
               />
               <button
                 type="submit"
-                className="h-full rounded-r-md bg-primary px-5 text-xs font-extrabold uppercase cursor-pointer hover:opacity-80"
+                disabled={status === "loading"}
+                className="h-full rounded-r-md bg-primary px-5 text-xs font-extrabold uppercase cursor-pointer hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                join
+                {status === "loading" ? "joining" : "join"}
               </button>
             </form>
+            <p
+              className={`mt-3 text-sm min-h-5 ${
+                status === "success" ? "text-primary" : "text-ink"
+              }`}
+              role={message ? "status" : undefined}
+              aria-live="polite"
+            >
+              {message}
+            </p>
           </div>
         </div>
 
