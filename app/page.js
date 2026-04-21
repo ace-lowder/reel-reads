@@ -11,9 +11,8 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [submitStatus, setSubmitStatus] = useState("idle");
+  const [submitResult, setSubmitResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [resultLocked, setResultLocked] = useState(false);
-  const [message, setMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -58,23 +57,15 @@ export default function Home() {
       return;
     }
 
-    let timerId;
-    let index = 0;
-
-    const revealNext = () => {
-      index += 1;
-      setRevealedCount(index);
-      if (index < cards.length) {
-        timerId = window.setTimeout(revealNext, index === 1 ? 60 : 120);
-      }
-    };
-
-    timerId = window.setTimeout(revealNext, 0);
+    const staggerMs = 120;
+    const timers = cards.map((_, index) =>
+      window.setTimeout(() => {
+        setRevealedCount(index + 1);
+      }, index * staggerMs)
+    );
 
     return () => {
-      if (timerId) {
-        window.clearTimeout(timerId);
-      }
+      timers.forEach((timerId) => window.clearTimeout(timerId));
     };
   }, [cardsLoaded]);
 
@@ -85,12 +76,12 @@ export default function Home() {
 
     if (!emailRegex.test(trimmedEmail)) {
       setSubmitStatus("error");
-      setMessage("something went wrong. try again.");
+      setSubmitResult("error");
+      setIsModalOpen(true);
       return;
     }
 
     setSubmitting(true);
-    setMessage("");
     setIsModalOpen(false);
 
     try {
@@ -112,31 +103,33 @@ export default function Home() {
       }
 
       setSubmitStatus("success");
-      setResultLocked(false);
-      setMessage("check your email for the welcome note");
-      setEmail("");
+      setSubmitResult(data?.result === "duplicate" ? "duplicate" : "success");
+      setEmail(trimmedEmail);
       setWebsite("");
     } catch {
       setSubmitStatus("error");
-      setResultLocked(false);
-      setMessage("something went wrong. try again.");
+      setSubmitResult("error");
       setIsModalOpen(true);
     } finally {
       setSubmitting(false);
     }
   }
 
-  const buttonDisabled = submitting || (submitStatus !== "idle" && !resultLocked);
-  const buttonLabel =
+  const buttonDisabled = submitting || submitStatus !== "idle";
+  const buttonContent =
     submitting ? (
       <span
         aria-hidden="true"
-        className="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-white/70 border-t-transparent"
+        className="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
       />
     ) : submitStatus === "success" ? (
-      "✓"
+      <span aria-hidden="true" className="inline-flex justify-center text-lg leading-none">
+        ✓
+      </span>
     ) : submitStatus === "error" ? (
-      "×"
+      <span aria-hidden="true" className="inline-flex justify-center text-lg leading-none">
+        ×
+      </span>
     ) : (
       "join"
     );
@@ -146,6 +139,12 @@ export default function Home() {
       : submitStatus === "error"
         ? "bg-red-500 hover:opacity-90"
         : "bg-primary hover:opacity-80";
+  const buttonText =
+    submitStatus === "success"
+      ? submitResult === "duplicate"
+        ? "This email has already signed up"
+        : "Check your email!"
+      : "";
   return (
     <main className="min-h-screen overflow-hidden bg-dark text-white relative">
       <div className="mx-auto flex flex-col justify-center h-full w-full max-w-5xl">
@@ -231,8 +230,7 @@ export default function Home() {
                   setEmail(event.target.value);
                   if (submitStatus !== "idle") {
                     setSubmitStatus("idle");
-                    setResultLocked(true);
-                    setMessage("");
+                    setSubmitResult(null);
                     setIsModalOpen(false);
                   }
                 }}
@@ -251,20 +249,18 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={buttonDisabled}
-                className={`h-full rounded-r-md px-5 text-xs font-extrabold uppercase cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 transition-all ${buttonStyles}`}
+                className={`h-full w-28 shrink-0 rounded-r-md px-4 text-xs font-extrabold uppercase cursor-pointer transition-all disabled:cursor-not-allowed disabled:opacity-70 ${buttonStyles}`}
               >
-                {buttonLabel}
+                <span className="flex w-full items-center justify-center">
+                  {buttonContent}
+                </span>
               </button>
             </form>
-            <p
-              className={`mt-3 text-sm min-h-5 ${
-                submitStatus === "success" ? "text-primary" : "text-ink"
-              }`}
-              role={message ? "status" : undefined}
-              aria-live="polite"
-            >
-              {message}
-            </p>
+            {buttonText ? (
+              <p className="mt-3 text-sm min-h-5 text-primary" role="status" aria-live="polite">
+                {buttonText}
+              </p>
+            ) : null}
           </div>
         </div>
 
@@ -316,29 +312,21 @@ export default function Home() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="signup-error-title"
-          className={`relative w-full max-w-md rounded-xl border border-white/10 bg-dark p-6 text-white shadow-2xl transition-all duration-200 ${
+          className={`relative w-full max-w-sm rounded-xl border border-white/10 bg-dark p-5 text-white shadow-2xl transition-all duration-200 ${
             isModalOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-2"
           }`}
           onClick={(event) => event.stopPropagation()}
         >
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(false)}
-            aria-label="Close dialog"
-            className="absolute right-3 top-3 rounded-full p-2 text-ink transition-colors hover:text-white"
-          >
-            ×
-          </button>
-          <h2 id="signup-error-title" className="font-literata text-2xl font-extrabold text-white">
+          <h2 id="signup-error-title" className="font-literata text-xl font-extrabold text-white">
             something went wrong
           </h2>
           <p className="mt-3 text-sm leading-6 text-ink">
-            Please email hello@reelreads.club if the sign up continues to fail
+            Please email hello@reelreads.club if the sign up keeps failing.
           </p>
           <button
             type="button"
             onClick={() => setIsModalOpen(false)}
-            className="mt-6 w-full rounded-md bg-primary px-4 py-3 text-sm font-extrabold uppercase text-dark transition-opacity hover:opacity-90"
+            className="mt-6 w-full rounded-md bg-primary px-4 py-3 text-sm font-extrabold uppercase text-dark transition-all hover:bg-primary/90 hover:shadow-md"
           >
             Okay
           </button>

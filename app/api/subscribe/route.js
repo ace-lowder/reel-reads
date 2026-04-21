@@ -55,13 +55,13 @@ export async function POST(request) {
     });
 
     if (response.ok) {
-      return jsonResponse({ ok: true });
+      return jsonResponse({ ok: true, result: "success" });
     }
 
     const errorText = await response.text().catch(() => "");
 
     if (isDuplicateSubscriber(errorText) || response.status === 409) {
-      return jsonResponse({ ok: true });
+      return jsonResponse({ ok: true, result: "duplicate" });
     }
 
     return jsonResponse({ error: "subscribe_failed" }, 500);
