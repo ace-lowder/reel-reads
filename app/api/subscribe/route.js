@@ -4,10 +4,6 @@ function jsonResponse(body, status = 200) {
   return Response.json(body, { status });
 }
 
-function isDuplicateSubscriber(payloadText) {
-  return /already|exists|subscribed|duplicate/i.test(payloadText);
-}
-
 export async function POST(request) {
   const token = process.env.MAILERLITE_API_TOKEN;
   const groupId = process.env.MAILERLITE_GROUP_ID;
@@ -55,13 +51,7 @@ export async function POST(request) {
     });
 
     if (response.ok) {
-      return jsonResponse({ ok: true, result: "success" });
-    }
-
-    const errorText = await response.text().catch(() => "");
-
-    if (isDuplicateSubscriber(errorText) || response.status === 409) {
-      return jsonResponse({ ok: true, result: "duplicate" });
+      return jsonResponse({ ok: true });
     }
 
     return jsonResponse({ error: "subscribe_failed" }, 500);

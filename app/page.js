@@ -11,7 +11,6 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [submitStatus, setSubmitStatus] = useState("idle");
-  const [submitResult, setSubmitResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -75,8 +74,7 @@ export default function Home() {
     const trimmedEmail = email.trim();
 
     if (!emailRegex.test(trimmedEmail)) {
-      setSubmitStatus("error");
-      setSubmitResult("error");
+      setSubmitStatus("idle");
       setIsModalOpen(true);
       return;
     }
@@ -103,12 +101,9 @@ export default function Home() {
       }
 
       setSubmitStatus("success");
-      setSubmitResult(data?.result === "duplicate" ? "duplicate" : "success");
-      setEmail(trimmedEmail);
       setWebsite("");
     } catch {
-      setSubmitStatus("error");
-      setSubmitResult("error");
+      setSubmitStatus("idle");
       setIsModalOpen(true);
     } finally {
       setSubmitting(false);
@@ -128,28 +123,15 @@ export default function Home() {
     >
       ✓
     </span>
-  ) : submitStatus === "error" ? (
-    <span
-      aria-hidden="true"
-      className="inline-flex justify-center text-lg relative -left-px leading-none"
-    >
-      ×
-    </span>
   ) : (
     "join"
   );
   const buttonStyles =
     submitStatus === "success"
       ? "bg-emerald-500 hover:opacity-90"
-      : submitStatus === "error"
-        ? "bg-red-500 hover:opacity-90"
-        : "bg-primary hover:opacity-80";
+      : "bg-primary hover:opacity-80";
   const buttonText =
-    submitStatus === "success"
-      ? submitResult === "duplicate"
-        ? "This email has already signed up"
-        : "Check your email!"
-      : "";
+    submitStatus === "success" ? "Check your email!" : "";
   return (
     <main className="min-h-screen overflow-hidden bg-dark text-white relative">
       <div className="mx-auto flex flex-col justify-center h-full w-full max-w-5xl">
@@ -215,61 +197,65 @@ export default function Home() {
               Read the book. Watch the movie. Talk about it.
             </p>
 
-            <form
-              className="flex justify-center w-full mt-10 gap-3 h-12"
-              onSubmit={handleSubmit}
-            >
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="enter your email"
-                className="h-full w-full rounded-l-md bg-white/5 border border-white/15 px-4 placeholder:text-white/45 focus:outline-none"
-                autoComplete="email"
-                value={email}
-                disabled={submitting}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  if (submitStatus !== "idle") {
-                    setSubmitStatus("idle");
-                    setSubmitResult(null);
-                    setIsModalOpen(false);
-                  }
-                }}
-                required
-              />
-              <input
-                aria-hidden="true"
-                tabIndex={-1}
-                autoComplete="off"
-                className="absolute left-2500 h-px w-px opacity-0"
-                name="website"
-                type="text"
-                value={website}
-                onChange={(event) => setWebsite(event.target.value)}
-              />
-              <button
-                type="submit"
-                disabled={buttonDisabled}
-                className={`h-full w-16 shrink-0 rounded-r-md px-4 text-xs font-extrabold uppercase cursor-pointer transition-all disabled:cursor-not-allowed disabled:opacity-70 ${buttonStyles}`}
+            <div className="relative mt-10">
+              <form
+                className="flex justify-center w-full gap-3 h-12"
+                onSubmit={handleSubmit}
               >
-                <span className="flex w-full items-center justify-center">
-                  {buttonContent}
-                </span>
-              </button>
-            </form>
-            {buttonText ? (
+                <label htmlFor="email" className="sr-only">
+                  Email address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="enter your email"
+                  className="h-full w-full rounded-l-md bg-white/5 border border-white/15 px-4 placeholder:text-white/45 focus:outline-none"
+                  autoComplete="email"
+                  value={email}
+                  disabled={submitting}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    if (submitStatus !== "idle") {
+                      setSubmitStatus("idle");
+                      setSubmitResult(null);
+                      setIsModalOpen(false);
+                    }
+                  }}
+                  required
+                />
+                <input
+                  aria-hidden="true"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="absolute left-[-9999px] h-px w-px opacity-0"
+                  name="website"
+                  type="text"
+                  value={website}
+                  onChange={(event) => setWebsite(event.target.value)}
+                />
+                <button
+                  type="submit"
+                  disabled={buttonDisabled}
+                  className={`h-full w-16 shrink-0 rounded-r-md px-4 text-xs font-extrabold uppercase cursor-pointer transition-all disabled:cursor-not-allowed disabled:opacity-70 ${buttonStyles}`}
+                >
+                  <span className="flex w-full items-center justify-center">
+                    {buttonContent}
+                  </span>
+                </button>
+              </form>
               <p
-                className="mt-3 text-sm min-h-5 text-primary"
+                className={`absolute left-1/2 top-full mt-3 -translate-x-1/2 text-sm text-primary transition-all duration-200 ${
+                  buttonText
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-1 opacity-0"
+                }`}
                 role="status"
                 aria-live="polite"
               >
-                {buttonText}
+                {buttonText || " "}
               </p>
-            ) : null}
+            </div>
           </div>
         </div>
 
