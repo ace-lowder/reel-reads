@@ -6,6 +6,8 @@ A Next.js landing site for a local book club
 
 The hero form posts to the server route at `/api/subscribe`, which then sends the subscriber to MailerLite and adds them to the configured group. MailerLite automation handles the welcome email after the subscriber is added.
 
+For deployment, set `MAILERLITE_API_TOKEN` and `MAILERLITE_GROUP_ID` in the Vercel project settings. Local production builds require Node.js 20.9+ to match the Next.js version in this repo.
+
 ### Required env vars
 
 - `MAILERLITE_API_TOKEN`

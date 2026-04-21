@@ -218,7 +218,6 @@ export default function Home() {
                     setEmail(event.target.value);
                     if (submitStatus !== "idle") {
                       setSubmitStatus("idle");
-                      setSubmitResult(null);
                       setIsModalOpen(false);
                     }
                   }}
@@ -323,7 +322,7 @@ export default function Home() {
           <p className="mt-3 text-sm leading-6 text-ink">
             An unexpected error has occurred. Please try again. Email me at{" "}
             <a
-              href="mailto:hello@reelreads.com"
+              href="mailto:hello@reelreads.club"
               className="text-blue-400! hover:underline!"
             >
               hello@reelreads.club
