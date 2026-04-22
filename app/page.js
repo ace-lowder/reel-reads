@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -13,6 +13,8 @@ export default function Home() {
   const [submitStatus, setSubmitStatus] = useState("idle");
   const [submitting, setSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCardIndex, setSelectedCardIndex] = useState(null);
+  const cardRailRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,6 +69,44 @@ export default function Home() {
       timers.forEach((timerId) => window.clearTimeout(timerId));
     };
   }, [cardsLoaded]);
+
+  useEffect(() => {
+    const isTouchDevice = window.matchMedia(
+      "(hover: none) and (pointer: coarse)",
+    ).matches;
+
+    if (!isTouchDevice) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event) => {
+      if (!cardRailRef.current?.contains(event.target)) {
+        setSelectedCardIndex(null);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, []);
+
+  function handleCardClick(event, index, href) {
+    const isTouchDevice = window.matchMedia(
+      "(hover: none) and (pointer: coarse)",
+    ).matches;
+
+    if (!isTouchDevice || !href) {
+      return;
+    }
+
+    if (selectedCardIndex !== index) {
+      event.preventDefault();
+      setSelectedCardIndex(index);
+      return;
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -130,8 +170,7 @@ export default function Home() {
     submitStatus === "success"
       ? "bg-emerald-500 hover:opacity-90"
       : "bg-primary hover:opacity-80";
-  const buttonText =
-    submitStatus === "success" ? "Check your email!" : "";
+  const buttonText = submitStatus === "success" ? "Check your email!" : "";
   return (
     <main className="min-h-screen overflow-hidden bg-dark text-white relative">
       <div className="mx-auto flex flex-col justify-center h-full w-full max-w-5xl">
@@ -140,7 +179,7 @@ export default function Home() {
           <div className="absolute w-32 h-full bg-[linear-gradient(-90deg,#1a1d2000_0%,#1a1d20CC_70%,#1a1d20FF_100%)] z-10" />
           <div className="absolute right-0 w-32 translate-x-px h-full bg-[linear-gradient(90deg,#1a1d2000_0%,#1a1d20CC_50%,#1a1d20FF_100%)] z-10" />
           <div className="absolute bottom-0 w-full h-32 bg-[linear-gradient(180deg,#1a1d2000_0%,#1a1d20CC_60%,#1a1d20FF_100%)] z-10" />
-          <p className="absolute right-2 top-3/5 -rotate-90 z-10 text-ink/50">
+          <p className="absolute -right-4 top-1/2 sm:top-3/5 -rotate-90 z-10 text-ink/50">
             Project Hail Mary
           </p>
           <img
@@ -154,10 +193,8 @@ export default function Home() {
             }`}
           />
         </div>
-        {/* <div className="relative h-full left-1/2 -translate-x-1/2 top-0 w-[130vw] max-w-[1500px] bg-red-200" /> */}
-        {/* <div className="absolute inset-x-0 bottom-0 h-[200px] bg-gradient-to-t from-dark to-transparent" /> */}
 
-        <header className="z-10 flex items-center justify-between pt-2 px-4 lg:px-0">
+        <header className="z-10 flex items-center justify-between pt-4 px-6">
           <a
             href="https://www.goodreads.com/user/show/200353032-ace"
             target="_blank"
@@ -179,7 +216,7 @@ export default function Home() {
             href="https://www.google.com/maps/place/Irvine,+CA"
             target="_blank"
             rel="noreferrer"
-            className="group uppercase text-sm font-bold text-ink py-4 px-4 translate-x-4"
+            className="group uppercase text-sm font-bold text-ink py-2 px-4 translate-x-0 text-right"
           >
             a book club in{" "}
             <span className="transition-colors duration-150 group-hover:text-primary group-hover:underline">
@@ -258,7 +295,10 @@ export default function Home() {
           </div>
         </div>
 
-        <ul className="flex mx-auto px-4 w-fit max-w-screen flex-nowrap gap-3 overflow-x-scroll">
+        <ul
+          ref={cardRailRef}
+          className="flex mx-auto px-4 w-fit max-w-screen flex-nowrap gap-3 overflow-x-scroll"
+        >
           {cardsLoaded &&
             cards.map((card, index) => (
               <li
@@ -274,21 +314,36 @@ export default function Home() {
                   target={card.href ? "_blank" : undefined}
                   rel={card.href ? "noreferrer" : undefined}
                   className="group block w-full"
+                  onClick={(event) => handleCardClick(event, index, card.href)}
                 >
                   <div className="relative aspect-2/3 rounded-md">
                     <img
                       src={card.poster}
                       alt={card.title}
                       loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover transition-opacity duration-150 group-hover:opacity-0 rounded-md"
+                      className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-150 rounded-md ${
+                        selectedCardIndex === index
+                          ? "opacity-0 group-hover:opacity-0"
+                          : "opacity-100 group-hover:opacity-0"
+                      }`}
                     />
                     <img
                       src={card.book}
                       alt={`${card.title} book cover`}
                       loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-150 group-hover:opacity-100 rounded-md"
+                      className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-150 rounded-md ${
+                        selectedCardIndex === index
+                          ? "opacity-100 group-hover:opacity-100"
+                          : "opacity-0 group-hover:opacity-100"
+                      }`}
                     />
-                    <div className="pointer-events-none absolute inset-0 rounded-md border border-ink/70 transition-all group-hover:border-3 group-hover:border-primary" />
+                    <div
+                      className={`pointer-events-none absolute inset-0 rounded-md border transition-all ${
+                        selectedCardIndex === index
+                          ? "border-3 border-primary"
+                          : "border border-ink/70 group-hover:border-3 group-hover:border-primary"
+                      }`}
+                    />
                   </div>
                 </a>
               </li>
