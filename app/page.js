@@ -179,7 +179,7 @@ export default function Home() {
           <div className="absolute w-32 h-full bg-[linear-gradient(-90deg,#1a1d2000_0%,#1a1d20CC_70%,#1a1d20FF_100%)] z-10" />
           <div className="absolute right-0 w-32 translate-x-px h-full bg-[linear-gradient(90deg,#1a1d2000_0%,#1a1d20CC_50%,#1a1d20FF_100%)] z-10" />
           <div className="absolute bottom-0 w-full h-32 bg-[linear-gradient(180deg,#1a1d2000_0%,#1a1d20CC_60%,#1a1d20FF_100%)] z-10" />
-          <p className="absolute -right-4 top-1/2 sm:top-3/5 -rotate-90 z-10 text-ink/50">
+          <p className="absolute -right-4 top-1/2 sm:top-3/5 -rotate-90 z-10 text-ink/50 select-text">
             Project Hail Mary
           </p>
           <img
@@ -264,7 +264,7 @@ export default function Home() {
                   aria-hidden="true"
                   tabIndex={-1}
                   autoComplete="off"
-                  className="absolute left-[-9999px] h-px w-px opacity-0"
+                  className="absolute -left-2500 h-px w-px opacity-0"
                   name="website"
                   type="text"
                   value={website}
