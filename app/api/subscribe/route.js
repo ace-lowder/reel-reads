@@ -50,8 +50,12 @@ export async function POST(request) {
       }),
     });
 
-    if (response.ok) {
-      return jsonResponse({ ok: true });
+    if (response.status === 201) {
+      return jsonResponse({ ok: true, result: "new" });
+    }
+
+    if (response.status === 200) {
+      return jsonResponse({ ok: true, result: "duplicate" });
     }
 
     return jsonResponse({ error: "subscribe_failed" }, 500);

@@ -12,7 +12,8 @@ export default function Home() {
   const [website, setWebsite] = useState("");
   const [submitStatus, setSubmitStatus] = useState("idle");
   const [submitting, setSubmitting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);
   const cardRailRef = useRef(null);
 
@@ -115,12 +116,14 @@ export default function Home() {
 
     if (!emailRegex.test(trimmedEmail)) {
       setSubmitStatus("idle");
-      setIsModalOpen(true);
+      setModalType("error");
+      setIsModalVisible(true);
       return;
     }
 
     setSubmitting(true);
-    setIsModalOpen(false);
+    setModalType(null);
+    setIsModalVisible(false);
 
     try {
       const response = await fetch("/api/subscribe", {
@@ -140,14 +143,26 @@ export default function Home() {
         throw new Error(data?.error || "request_failed");
       }
 
+      if (data?.result === "duplicate") {
+        setSubmitStatus("idle");
+        setModalType("duplicate");
+        setIsModalVisible(true);
+        return;
+      }
+
       setSubmitStatus("success");
       setWebsite("");
     } catch {
       setSubmitStatus("idle");
-      setIsModalOpen(true);
+      setModalType("error");
+      setIsModalVisible(true);
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function closeModal() {
+    setIsModalVisible(false);
   }
 
   const buttonDisabled = submitting || submitStatus !== "idle";
@@ -255,7 +270,7 @@ export default function Home() {
                     setEmail(event.target.value);
                     if (submitStatus !== "idle") {
                       setSubmitStatus("idle");
-                      setIsModalOpen(false);
+                      setIsModalVisible(false);
                     }
                   }}
                   required
@@ -352,41 +367,77 @@ export default function Home() {
       </div>
       <div
         className={`fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4 transition-all duration-200 ${
-          isModalOpen
+          modalType && isModalVisible
             ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+            : modalType
+              ? "opacity-0 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
         }`}
-        onClick={() => setIsModalOpen(false)}
-        aria-hidden={!isModalOpen}
+        onClick={closeModal}
+        onTransitionEnd={(event) => {
+          if (event.target !== event.currentTarget) {
+            return;
+          }
+
+          if (!isModalVisible) {
+            setModalType(null);
+          }
+        }}
+        aria-hidden={!modalType}
       >
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="signup-error-title"
           className={`text-center relative w-full max-w-sm rounded-xl border border-white/10 bg-dark p-5 text-white shadow-2xl transition-all duration-200 ${
-            isModalOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-2"
+            modalType && isModalVisible
+              ? "scale-100 translate-y-0"
+              : "scale-95 translate-y-2"
           }`}
           onClick={(event) => event.stopPropagation()}
         >
-          <h2
-            id="signup-error-title"
-            className="font-literata text-xl font-extrabold text-white"
-          >
-            Something went wrong
-          </h2>
-          <p className="mt-3 text-sm leading-6 text-ink">
-            An unexpected error has occurred. Please try again. Email me at{" "}
-            <a
-              href="mailto:hello@reelreads.club"
-              className="text-blue-400! hover:underline!"
-            >
-              hello@reelreads.club
-            </a>{" "}
-            if you see this again.
-          </p>
+          {modalType === "duplicate" ? (
+            <>
+              <h2
+                id="signup-error-title"
+                className="font-literata text-xl font-extrabold text-white"
+              >
+                Having Trouble?
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-ink">
+                Looks like you already signed up. Check your spam or junk for
+                the welcome email, or message us directly at{" "}
+                <a
+                  href="mailto:hello@reelreads.club"
+                  className="text-blue-400! hover:underline!"
+                >
+                  hello@reelreads.club
+                </a>
+              </p>
+            </>
+          ) : modalType === "error" ? (
+            <>
+              <h2
+                id="signup-error-title"
+                className="font-literata text-xl font-extrabold text-white"
+              >
+                Something went wrong
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-ink">
+                An unexpected error has occurred. Please try again. Email me at{" "}
+                <a
+                  href="mailto:hello@reelreads.club"
+                  className="text-blue-400! hover:underline!"
+                >
+                  hello@reelreads.club
+                </a>{" "}
+                if you see this again.
+              </p>
+            </>
+          ) : null}
           <button
             type="button"
-            onClick={() => setIsModalOpen(false)}
+            onClick={closeModal}
             className="mt-6 w-full rounded-md bg-primary px-4 py-3 text-sm font-extrabold uppercase text-dark transition-all hover:bg-primary/70 hover:cursor-pointer"
           >
             Okay
